@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.HitResult;
 import com.google.ar.core.Session;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.google.ar.sceneform.AnchorNode;
@@ -27,20 +28,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         fragment=(ArFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-        fragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
-            Anchor anchor = hitResult.createAnchor();
-                    ModelRenderable.builder()
+        fragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> setModelOnUI(hitResult));
+    }
+
+    private void setModelOnUI(HitResult hitResult){
+        Anchor anchor = hitResult.createAnchor();
+        ModelRenderable.builder()
                 .setSource(this, R.raw.cheetah)
                 .build()
-                .thenAccept(renderable -> addModelToScene(anchor,renderable))
+                .thenAccept(renderable -> loadModel(anchor,renderable))
                 .exceptionally(throwable -> {
                     Toast.makeText(MainActivity.this,"Model can't be Loaded", Toast.LENGTH_SHORT).show();
                     return null;
                 });
-        });
     }
-
-    private void addModelToScene(Anchor anchor,ModelRenderable modelRenderable){
+    private void loadModel(Anchor anchor,ModelRenderable modelRenderable){
         AnchorNode anchorNode=new AnchorNode(anchor);
         TransformableNode transformableNode=new TransformableNode(fragment.getTransformationSystem());
         transformableNode.setParent(anchorNode);
